@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #0f172a;
       color: #e2e8f0;
       margin: 0;
@@ -21,6 +21,7 @@
       text-align: center;
       color: #38bdf8;
       margin-bottom: 30px;
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
     }
     .box {
       background: #1e293b;
@@ -28,6 +29,7 @@
       border-radius: 12px;
       margin-bottom: 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      border: 1px solid #334155;
     }
     label {
       display: block;
@@ -42,19 +44,22 @@
       border-radius: 8px;
       border: none;
       font-size: 16px;
+      box-sizing: border-box;
     }
     input:focus, textarea:focus, select:focus {
       outline: 2px solid #38bdf8;
     }
     textarea {
       resize: vertical;
-      height: 130px;
+      height: 100px;
       background: #0f172a;
       color: #fff;
+      border: 1px solid #334155;
     }
-    input[type="date"], input[type="number"] {
+    input[type="date"], input[type="number"], select {
       background: #0f172a;
       color: #fff;
+      border: 1px solid #334155;
     }
     button {
       background: #38bdf8;
@@ -62,6 +67,7 @@
       font-weight: bold;
       cursor: pointer;
       transition: all 0.3s;
+      margin-top: 10px;
     }
     button:hover {
       background: #0ea5e9;
@@ -69,20 +75,22 @@
     }
     .stop-btn {
       background: #ef4444 !important;
-      margin-top: 12px;
+      color: white !important;
     }
     .stop-btn:hover {
       background: #dc2626 !important;
     }
     #responseBox {
-      height: 400px;
+      height: 350px;
       overflow-y: auto;
       white-space: pre-wrap;
       background: #020617;
       padding: 16px;
       border-radius: 10px;
       font-size: 15px;
-      line-height: 1.5;
+      line-height: 1.6;
+      border: 1px solid #1e293b;
+      color: #cbd5e1;
     }
     .timeRow {
       display: flex;
@@ -117,20 +125,27 @@
   <h1>📊 Exam News AI (Smart v2)</h1>
 
   <div class="box">
-    <label>Prompt (jo bhi likho, wahi follow karega)</label>
-    <textarea id="prompt">
-Give 5-20 short SSC, UPSC and govt exam related news of TODAY. Only big updates, dates, notifications.
-    </textarea>
-    <div class="hint">Example: "Only Telangana SSC big updates" ya "UPSC only"</div>
+    <label>Prompt (Custom instructions)</label>
+    <textarea id="prompt">Give 5-20 short SSC, UPSC and govt exam related news of TODAY. Only big updates, dates, notifications.</textarea>
+    <div class="hint">Example: "Only SSC CGL updates" ya "UPSC and Banking news"</div>
   </div>
 
   <div class="box">
-    <label>Select Date (Default: Aaj ki)</label>
-    <input type="date" id="dateInput">
+    <div style="display: flex; gap: 15px;">
+      <div style="flex: 1;">
+        <label>Select Date</label>
+        <input type="date" id="dateInput">
+      </div>
+      <div style="flex: 1;">
+        <label class="daily-label" style="margin-top: 35px;">
+          <input type="checkbox" id="dailyCheck"> Daily Auto-Fetch
+        </label>
+      </div>
+    </div>
   </div>
 
   <div class="box">
-    <label>Set Time (HH:MM AM/PM)</label>
+    <label>Set Schedule Time</label>
     <div class="timeRow">
       <input type="number" id="hourInput" placeholder="HH (1-12)" min="1" max="12">
       <input type="number" id="minuteInput" placeholder="MM (00-59)" min="0" max="59">
@@ -139,37 +154,48 @@ Give 5-20 short SSC, UPSC and govt exam related news of TODAY. Only big updates,
         <option value="PM" selected>PM</option>
       </select>
     </div>
-    <div class="hint">Exam time jaise 8:00 AM ya 7:30 PM set karo</div>
-  </div>
-
-  <div class="box">
-    <label class="daily-label">
-      <input type="checkbox" id="dailyCheck">
-      Daily Recurring (har roz same time pe auto fetch)
-    </label>
-  </div>
-
-  <div class="box">
     <button onclick="startTimer()">🚀 Start / Schedule</button>
     <button class="stop-btn" onclick="stopTimer()">⛔ Stop All Timers</button>
   </div>
 
   <div class="box">
-    <label>Response (Fresh News Yahan Aayegi)</label>
-    <div id="responseBox">Waiting for trigger... (Time set karo aur Start dabao)</div>
+    <label>Live Response</label>
+    <div id="responseBox">System Ready... Time set karke Start dabayein ya direct news ke liye "Start" click karein.</div>
   </div>
 </div>
 
 <script>
-  // Default today date set karo
+  // Set default date to today
   const dateInput = document.getElementById("dateInput");
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-  dateInput.value = today;
+  dateInput.value = new Date().toISOString().split("T")[0];
 
   let timeoutId = null;
 
   function saveSchedule(data) {
     localStorage.setItem("examNewsSchedule", JSON.stringify(data));
+  }
+
+  async function fetchNews() {
+    const prompt = document.getElementById("prompt").value.trim();
+    const date = document.getElementById("dateInput").value;
+    const box = document.getElementById("responseBox");
+    
+    box.innerHTML = "<b style='color: #38bdf8;'>⚡ Fetching latest updates... Please wait.</b>";
+
+    try {
+      // ✅ Relative path for seamless deployment (Render/Vercel)
+      const res = await fetch("/news", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, date })
+      });
+      
+      const data = await res.json();
+      box.innerText = data.result || "No major updates found for this selection.";
+    } catch (e) {
+      box.innerText = "❌ Error: Could not connect to server. Make sure backend is running.";
+      console.error("Fetch Error:", e);
+    }
   }
 
   function loadAndCheckSchedule() {
@@ -179,82 +205,66 @@ Give 5-20 short SSC, UPSC and govt exam related news of TODAY. Only big updates,
     const s = JSON.parse(saved);
     const now = new Date();
     let target = new Date(now);
-    let targetHour = s.hour;
-    if (s.ampm === "PM" && s.hour !== 12) targetHour += 12;
-    if (s.ampm === "AM" && s.hour === 12) targetHour = 0;
+    
+    let targetHour = parseInt(s.hour);
+    if (s.ampm === "PM" && targetHour !== 12) targetHour += 12;
+    if (s.ampm === "AM" && targetHour === 12) targetHour = 0;
 
-    target.setHours(targetHour, s.minute, 0, 0);
+    target.setHours(targetHour, parseInt(s.minute), 0, 0);
 
-    if (s.daily) {
-      if (target <= now) {
+    // If time already passed, set for tomorrow if daily is ON
+    if (target <= now) {
+      if (s.daily) {
         target.setDate(target.getDate() + 1);
-      }
-    } else {
-      if (target <= now) {
-        fetchNews(); // missed time → abhi trigger
+      } else {
+        // Immediate trigger for missed one-time schedule
+        fetchNews();
         localStorage.removeItem("examNewsSchedule");
         return;
       }
     }
 
     const delay = target - now;
-    if (delay > 0) {
-      timeoutId = setTimeout(() => {
-        fetchNews();
-        if (s.daily) {
-          // next day ke liye re-schedule
-          saveSchedule(s);
-          loadAndCheckSchedule();
-        }
-      }, delay);
-      document.getElementById("responseBox").innerText = 
-        `⏳ Scheduled for ${s.hour.toString().padStart(2,'0')}:${s.minute.toString().padStart(2,'0')} ${s.ampm} ${s.daily ? '(Daily mode ON)' : ''}`;
-    } else {
+    document.getElementById("responseBox").innerText = `⏳ Next update scheduled at: ${s.hour}:${s.minute.toString().padStart(2,'0')} ${s.ampm}`;
+
+    timeoutId = setTimeout(() => {
       fetchNews();
-    }
-  }
-
-  window.onload = loadAndCheckSchedule;
-
-  async function fetchNews() {
-    const prompt = document.getElementById("prompt").value.trim();
-    const date = document.getElementById("dateInput").value;
-    const box = document.getElementById("responseBox");
-    box.innerText = "⚡ Fetching latest exam news for " + date + "...";
-
-    try {
-      const res = await fetch("http://localhost:5000/news", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, date })
-      });
-      const data = await res.json();
-      box.innerText = data.result || "Koi badi news nahi mili aaj.";
-    } catch (e) {
-      box.innerText = "❌ Error: Server connect nahi ho raha. Console check karo.";
-      console.error(e);
-    }
+      if (s.daily) {
+        loadAndCheckSchedule(); // Re-run for next day
+      } else {
+        localStorage.removeItem("examNewsSchedule");
+      }
+    }, delay);
   }
 
   function startTimer() {
-    const hour = parseInt(document.getElementById("hourInput").value);
-    const minute = parseInt(document.getElementById("minuteInput").value);
+    if (timeoutId) clearTimeout(timeoutId);
+    
+    const hour = document.getElementById("hourInput").value;
+    const minute = document.getElementById("minuteInput").value;
     const ampm = document.getElementById("ampmInput").value;
     const daily = document.getElementById("dailyCheck").checked;
 
-    if (isNaN(hour) || isNaN(minute) || hour < 1 || hour > 12 || minute < 0 || minute > 59) {
-      return alert("Time sahi daalo (HH 1-12, MM 0-59)");
+    // Manual instant fetch if no time is entered
+    if (!hour || !minute) {
+        fetchNews();
+        return;
     }
 
     saveSchedule({ hour, minute, ampm, daily });
-    loadAndCheckSchedule(); // abhi schedule set
+    loadAndCheckSchedule();
+    alert("Schedule set successfully!");
   }
 
   function stopTimer() {
     if (timeoutId) clearTimeout(timeoutId);
     localStorage.removeItem("examNewsSchedule");
-    document.getElementById("responseBox").innerText = "⛔ Sab timers stop ho gaye. Naya set karo!";
+    document.getElementById("responseBox").innerText = "⛔ All timers stopped.";
   }
+
+  // Check schedule on page load
+  window.onload = loadAndCheckSchedule;
 </script>
+
 </body>
 </html>
