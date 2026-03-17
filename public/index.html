@@ -2,59 +2,164 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Exam News AI</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam News AI PRO</title>
 
 <style>
 body {
+  margin: 0;
   font-family: Arial;
   background: #0f172a;
   color: white;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  padding: 15px;
+}
+
+h2 {
   text-align: center;
-  padding: 20px;
+  color: #38bdf8;
 }
-textarea, button {
-  width: 90%;
-  padding: 12px;
-  margin: 10px;
+
+.box {
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+input, textarea, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
   border-radius: 8px;
+  border: none;
 }
+
 button {
   background: #38bdf8;
   font-weight: bold;
 }
-#output {
-  background: black;
-  padding: 15px;
-  margin-top: 20px;
-  white-space: pre-wrap;
+
+.add-btn { background: #22c55e; }
+.delete-btn { background: #ef4444; }
+
+.timer-card {
+  background: #020617;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+
+.result-box {
+  background: #020617;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border-left: 4px solid #38bdf8;
+}
+
+.time {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+@media (max-width: 480px) {
+  input, textarea, button {
+    font-size: 14px;
+  }
 }
 </style>
-
 </head>
+
 <body>
 
-<h2>📊 Exam News AI</h2>
+<div class="container">
 
-<textarea id="prompt">Give 5 short SSC and UPSC news of TODAY</textarea>
-<br>
-<input type="date" id="dateInput">
+<h2>📊 Exam News AI PRO</h2>
 
-<br>
-<button onclick="getNews()">🚀 Get News</button>
+<div class="box">
+<textarea id="prompt">Give 5 short SSC UPSC news of TODAY</textarea>
+</div>
 
-<div id="output">Result will appear here...</div>
+<div class="box">
+<button class="add-btn" onclick="addTimer()">➕ Add Timer</button>
+<div id="timers"></div>
+</div>
+
+<div class="box">
+<button onclick="saveAll()">💾 Save & Start</button>
+<button onclick="clearAll()">⛔ Clear All</button>
+</div>
+
+<div class="box">
+<h3>📜 Results History</h3>
+<div id="history"></div>
+</div>
+
+</div>
 
 <script>
-document.getElementById("dateInput").value =
-  new Date().toISOString().split("T")[0];
+let timers = JSON.parse(localStorage.getItem("timers")) || [];
+let historyData = JSON.parse(localStorage.getItem("history")) || [];
 
-async function getNews() {
+const timersDiv = document.getElementById("timers");
+const historyDiv = document.getElementById("history");
+
+// ➕ Add Timer
+function addTimer(data = {}) {
+  const id = Date.now();
+
+  const div = document.createElement("div");
+  div.className = "timer-card";
+  div.dataset.id = id;
+
+  div.innerHTML = `
+    <input type="date" class="date" value="${data.date || ''}">
+    <input type="time" class="timeInput" value="${data.time || ''}">
+    <button class="delete-btn" onclick="removeTimer(${id})">❌ Remove</button>
+  `;
+
+  timersDiv.appendChild(div);
+}
+
+// ❌ Remove Timer
+function removeTimer(id) {
+  document.querySelector(`[data-id='${id}']`).remove();
+}
+
+// 💾 Save Timers
+function saveAll() {
+  const cards = document.querySelectorAll(".timer-card");
+
+  timers = [];
+
+  cards.forEach(card => {
+    const date = card.querySelector(".date").value;
+    const time = card.querySelector(".timeInput").value;
+
+    if (date && time) {
+      timers.push({ date, time });
+    }
+  });
+
+  localStorage.setItem("timers", JSON.stringify(timers));
+  alert("Saved!");
+}
+
+// ⛔ Clear
+function clearAll() {
+  localStorage.clear();
+  location.reload();
+}
+
+// 🔥 Fetch + Save Result
+async function fetchNews(triggerTime) {
   const prompt = document.getElementById("prompt").value;
-  const date = document.getElementById("dateInput").value;
-
-  const output = document.getElementById("output");
-  output.innerText = "⏳ Loading...";
 
   try {
     const res = await fetch("/news", {
@@ -62,15 +167,82 @@ async function getNews() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ prompt, date })
+      body: JSON.stringify({
+        prompt,
+        date: new Date().toISOString().split("T")[0]
+      })
     });
 
     const data = await res.json();
-    output.innerText = data.result;
-  } catch (err) {
-    output.innerText = "❌ Error connecting to server";
+
+    const entry = {
+      time: triggerTime,
+      result: data.result
+    };
+
+    historyData.unshift(entry);
+    localStorage.setItem("history", JSON.stringify(historyData));
+
+    renderHistory();
+
+  } catch {
+    console.log("Error");
   }
 }
+
+// 📜 Render History
+function renderHistory() {
+  historyDiv.innerHTML = "";
+
+  historyData.forEach(h => {
+    const div = document.createElement("div");
+    div.className = "result-box";
+
+    div.innerHTML = `
+      <div class="time">🕒 ${h.time}</div>
+      <div>${h.result}</div>
+    `;
+
+    historyDiv.appendChild(div);
+  });
+}
+
+// ⏳ Timer Logic
+function checkTimers() {
+  setInterval(() => {
+    const now = new Date().getTime();
+    const last = parseInt(localStorage.getItem("lastTriggerTime") || 0);
+
+    timers.forEach(t => {
+      const target = new Date(t.date + "T" + t.time).getTime();
+
+      if (now >= target && now - last > 120000) {
+
+        const readableTime = new Date().toLocaleString();
+
+        fetchNews(readableTime);
+
+        localStorage.setItem("lastTriggerTime", now);
+
+        // remove triggered
+        timers = timers.filter(x => x !== t);
+        localStorage.setItem("timers", JSON.stringify(timers));
+      }
+    });
+
+  }, 1000);
+}
+
+// 🔄 Load
+function loadTimers() {
+  timers.forEach(t => addTimer(t));
+}
+
+// INIT
+loadTimers();
+renderHistory();
+checkTimers();
+
 </script>
 
 </body>
