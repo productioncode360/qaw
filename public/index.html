@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Exam News AI (Smart v2)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #38bdf8;
+      margin-bottom: 30px;
+    }
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #94a3b8;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid #38bdf8;
+    }
+    textarea {
+      resize: vertical;
+      height: 130px;
+      background: #0f172a;
+      color: #fff;
+    }
+    input[type="date"], input[type="number"] {
+      background: #0f172a;
+      color: #fff;
+    }
+    button {
+      background: #38bdf8;
+      color: #0f172a;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    button:hover {
+      background: #0ea5e9;
+      transform: translateY(-2px);
+    }
+    .stop-btn {
+      background: #ef4444 !important;
+      margin-top: 12px;
+    }
+    .stop-btn:hover {
+      background: #dc2626 !important;
+    }
+    #responseBox {
+      height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      background: #020617;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .timeRow {
+      display: flex;
+      gap: 12px;
+    }
+    .timeRow input, .timeRow select {
+      flex: 1;
+    }
+    .daily-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      color: #38bdf8;
+      cursor: pointer;
+    }
+    input[type="checkbox"] {
+      width: auto;
+      accent-color: #38bdf8;
+      transform: scale(1.4);
+    }
+    .hint {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>📊 Exam News AI (Smart v2)</h1>
+
+  <div class="box">
+    <label>Prompt (jo bhi likho, wahi follow karega)</label>
+    <textarea id="prompt">
+Give 5-20 short SSC, UPSC and govt exam related news of TODAY. Only big updates, dates, notifications.
+    </textarea>
+    <div class="hint">Example: "Only Telangana SSC big updates" ya "UPSC only"</div>
+  </div>
+
+  <div class="box">
+    <label>Select Date (Default: Aaj ki)</label>
+    <input type="date" id="dateInput">
+  </div>
+
+  <div class="box">
+    <label>Set Time (HH:MM AM/PM)</label>
+    <div class="timeRow">
+      <input type="number" id="hourInput" placeholder="HH (1-12)" min="1" max="12">
+      <input type="number" id="minuteInput" placeholder="MM (00-59)" min="0" max="59">
+      <select id="ampmInput">
+        <option value="AM">AM</option>
+        <option value="PM" selected>PM</option>
+      </select>
+    </div>
+    <div class="hint">Exam time jaise 8:00 AM ya 7:30 PM set karo</div>
+  </div>
+
+  <div class="box">
+    <label class="daily-label">
+      <input type="checkbox" id="dailyCheck">
+      Daily Recurring (har roz same time pe auto fetch)
+    </label>
+  </div>
+
+  <div class="box">
+    <button onclick="startTimer()">🚀 Start / Schedule</button>
+    <button class="stop-btn" onclick="stopTimer()">⛔ Stop All Timers</button>
+  </div>
+
+  <div class="box">
+    <label>Response (Fresh News Yahan Aayegi)</label>
+    <div id="responseBox">Waiting for trigger... (Time set karo aur Start dabao)</div>
+  </div>
+</div>
+
+<script>
+  // Default today date set karo
+  const dateInput = document.getElementById("dateInput");
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  dateInput.value = today;
+
+  let timeoutId = null;
+
+  function saveSchedule(data) {
+    localStorage.setItem("examNewsSchedule", JSON.stringify(data));
+  }
+
+  function loadAndCheckSchedule() {
+    const saved = localStorage.getItem("examNewsSchedule");
+    if (!saved) return;
+
+    const s = JSON.parse(saved);
+    const now = new Date();
+    let target = new Date(now);
+    let targetHour = s.hour;
+    if (s.ampm === "PM" && s.hour !== 12) targetHour += 12;
+    if (s.ampm === "AM" && s.hour === 12) targetHour = 0;
+
+    target.setHours(targetHour, s.minute, 0, 0);
+
+    if (s.daily) {
+      if (target <= now) {
+        target.setDate(target.getDate() + 1);
+      }
+    } else {
+      if (target <= now) {
+        fetchNews(); // missed time → abhi trigger
+        localStorage.removeItem("examNewsSchedule");
+        return;
+      }
+    }
+
+    const delay = target - now;
+    if (delay > 0) {
+      timeoutId = setTimeout(() => {
+        fetchNews();
+        if (s.daily) {
+          // next day ke liye re-schedule
+          saveSchedule(s);
+          loadAndCheckSchedule();
+        }
+      }, delay);
+      document.getElementById("responseBox").innerText = 
+        `⏳ Scheduled for ${s.hour.toString().padStart(2,'0')}:${s.minute.toString().padStart(2,'0')} ${s.ampm} ${s.daily ? '(Daily mode ON)' : ''}`;
+    } else {
+      fetchNews();
+    }
+  }
+
+  window.onload = loadAndCheckSchedule;
+
+  async function fetchNews() {
+    const prompt = document.getElementById("prompt").value.trim();
+    const date = document.getElementById("dateInput").value;
+    const box = document.getElementById("responseBox");
+    box.innerText = "⚡ Fetching latest exam news for " + date + "...";
+
+    try {
+      const res = await fetch("http://localhost:5000/news", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, date })
+      });
+      const data = await res.json();
+      box.innerText = data.result || "Koi badi news nahi mili aaj.";
+    } catch (e) {
+      box.innerText = "❌ Error: Server connect nahi ho raha. Console check karo.";
+      console.error(e);
+    }
+  }
+
+  function startTimer() {
+    const hour = parseInt(document.getElementById("hourInput").value);
+    const minute = parseInt(document.getElementById("minuteInput").value);
+    const ampm = document.getElementById("ampmInput").value;
+    const daily = document.getElementById("dailyCheck").checked;
+
+    if (isNaN(hour) || isNaN(minute) || hour < 1 || hour > 12 || minute < 0 || minute > 59) {
+      return alert("Time sahi daalo (HH 1-12, MM 0-59)");
+    }
+
+    saveSchedule({ hour, minute, ampm, daily });
+    loadAndCheckSchedule(); // abhi schedule set
+  }
+
+  function stopTimer() {
+    if (timeoutId) clearTimeout(timeoutId);
+    localStorage.removeItem("examNewsSchedule");
+    document.getElementById("responseBox").innerText = "⛔ Sab timers stop ho gaye. Naya set karo!";
+  }
+</script>
+</body>
+</html>
