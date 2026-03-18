@@ -3,247 +3,731 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Exam News AI PRO</title>
-
+<title>EXAM PRO · hold system</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-body {
+* {
   margin: 0;
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #e8ecf2;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  padding: 10px;
+  color: #1e2f40;
 }
 
 .container {
-  max-width: 500px;
-  margin: auto;
-  padding: 15px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-h2 {
-  text-align: center;
-  color: #38bdf8;
+/* HEADER */
+.mini-header {
+  background: white;
+  border-radius: 40px;
+  padding: 8px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #cbdae9;
 }
 
-.box {
-  background: #1e293b;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 15px;
+.mini-header h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #194a6a;
 }
 
-input, textarea, button {
+.hold-badge {
+  background: #f59e0b;
+  color: white;
+  padding: 4px 15px;
+  border-radius: 40px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* INPUT ROW */
+.input-row {
+  background: white;
+  border-radius: 40px;
+  padding: 12px 18px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #c0d2e6;
+}
+
+.prompt-mini {
+  flex: 3 1 250px;
+}
+
+.prompt-mini textarea {
   width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
+  border: 1px solid #b9cee5;
+  border-radius: 30px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  background: #f7faff;
+  min-height: 38px;
+  max-height: 60px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.date-mini, .time-mini, .ampm-mini {
+  display: flex;
+  align-items: center;
+  background: #f0f6fe;
+  border-radius: 30px;
+  padding: 0 6px;
+  border: 1px solid #c4d4e8;
+}
+
+.date-mini input, .time-mini input {
   border: none;
+  background: transparent;
+  padding: 8px;
+  font-size: 0.8rem;
+  width: 110px;
 }
 
-button {
-  background: #38bdf8;
-  font-weight: bold;
+.ampm-mini select {
+  border: none;
+  background: transparent;
+  padding: 8px 4px;
+  font-size: 0.8rem;
+  width: 65px;
+  font-weight: 500;
 }
 
-.add-btn { background: #22c55e; }
-.delete-btn { background: #ef4444; }
-
-.timer-card {
-  background: #020617;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
+.btn-add-mini {
+  background: #1f4b6e;
+  border: none;
+  color: white;
+  padding: 8px 22px;
+  border-radius: 40px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  height: 38px;
 }
 
-.result-box {
-  background: #020617;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border-left: 4px solid #38bdf8;
+/* ACTION BUTTONS */
+.action-tiny {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
-.time {
-  font-size: 12px;
-  color: #94a3b8;
-  margin-bottom: 5px;
+.btn-tiny {
+  border: none;
+  padding: 6px 20px;
+  border-radius: 40px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: white;
+  border: 1px solid #b8cde0;
+  cursor: pointer;
 }
 
-@media (max-width: 480px) {
-  input, textarea, button {
-    font-size: 14px;
-  }
+.btn-save-tiny {
+  background: #166b41;
+  border-color: #0b522f;
+  color: white;
+}
+
+.btn-clear-tiny {
+  background: white;
+  border-color: #fbc1c1;
+  color: #b91c1c;
+}
+
+.btn-process-tiny {
+  background: #f59e0b20;
+  border-color: #f59e0b;
+  color: #b45b0b;
+}
+
+/* DASHBOARD */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 12px;
+}
+
+/* LEFT PANEL */
+.left-panel {
+  background: #edf3fa;
+  border-radius: 30px;
+  padding: 12px;
+  border: 1px solid #c4d4e8;
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1d4663;
+  background: white;
+  padding: 6px 16px;
+  border-radius: 40px;
+  width: fit-content;
+}
+
+.timers-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.timer-mini-card {
+  background: white;
+  border-radius: 40px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #c9d9ec;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.timer-mini-card.hold {
+  background: #fff7e6;
+  border-left: 4px solid #f59e0b;
+}
+
+.timer-badge {
+  background: #1d4e72;
+  color: white;
+  border-radius: 30px;
+  padding: 3px 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.timer-badge.hold {
+  background: #f59e0b;
+}
+
+.timer-prompt-mini {
+  background: #ecf3fc;
+  border-radius: 30px;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #19415e;
+}
+
+.timer-hold-tag {
+  background: #f59e0b20;
+  color: #b45b0b;
+  border-radius: 30px;
+  padding: 2px 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border: 1px solid #f59e0b;
+}
+
+.delete-mini {
+  background: none;
+  border: none;
+  color: #acbed2;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 0 4px;
+}
+
+.delete-mini:hover {
+  color: #d33;
+}
+
+.empty-small {
+  text-align: center;
+  color: #809bb5;
+  padding: 20px;
+  font-size: 0.8rem;
+  background: white;
+  border-radius: 30px;
+}
+
+/* RIGHT PANEL */
+.right-panel {
+  background: #edf3fa;
+  border-radius: 30px;
+  padding: 12px;
+  border: 1px solid #c4d4e8;
+}
+
+.history-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.history-mini-card {
+  background: white;
+  border-radius: 24px;
+  padding: 12px 16px;
+  border-left: 4px solid #226699;
+  border: 1px solid #d0e0f0;
+}
+
+.history-mini-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+}
+
+.history-mini-time {
+  background: #e2ebf5;
+  padding: 2px 10px;
+  border-radius: 30px;
+  color: #1c4b77;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.history-mini-prompt {
+  background: #dae9f7;
+  padding: 2px 12px;
+  border-radius: 30px;
+  font-weight: 500;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-hold-badge {
+  background: #f59e0b;
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 10px;
+  border-radius: 30px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.history-mini-result {
+  font-size: 0.85rem;
+  color: #1e3b5c;
+  line-height: 1.5;
+  background: #f6faff;
+  padding: 8px 12px;
+  border-radius: 16px;
+  white-space: pre-wrap;
+}
+
+/* SCROLLBAR */
+.timers-compact::-webkit-scrollbar,
+.history-compact::-webkit-scrollbar {
+  width: 5px;
+}
+.timers-compact::-webkit-scrollbar-thumb {
+  background: #b4cae0;
+  border-radius: 10px;
+}
+
+@media (max-width: 750px) {
+  .dashboard { grid-template-columns: 1fr; }
+  .input-row { flex-direction: column; align-items: stretch; }
 }
 </style>
 </head>
-
 <body>
-
 <div class="container">
 
-<h2>📊 Exam News AI PRO</h2>
-
-<div class="box">
-<textarea id="prompt">Give 5 short SSC UPSC news of TODAY</textarea>
+<!-- HEADER with hold badge -->
+<div class="mini-header">
+  <h2><i class="fa-regular fa-clock" style="margin-right: 8px;"></i> EXAM PRO • hold system</h2>
+  <span class="hold-badge" id="holdCountDisplay">⏳ HOLD: 0</span>
 </div>
 
-<div class="box">
-<button class="add-btn" onclick="addTimer()">➕ Add Timer</button>
-<div id="timers"></div>
+<!-- INPUT ROW -->
+<div class="input-row">
+  <div class="prompt-mini">
+    <textarea id="prompt" placeholder="Give 5 SSC UPSC news...">Give 5 SSC UPSC news</textarea>
+  </div>
+  <div class="date-mini">
+    <i class="fa-regular fa-calendar" style="color:#315e83; margin-left:6px;"></i>
+    <input type="date" id="dateInput">
+  </div>
+  <div class="time-mini">
+    <i class="fa-regular fa-clock" style="color:#315e83;"></i>
+    <input type="time" id="timeInput" value="09:00">
+  </div>
+  <div class="ampm-mini">
+    <select id="ampmSelect">
+      <option value="AM">AM</option>
+      <option value="PM">PM</option>
+    </select>
+  </div>
+  <button class="btn-add-mini" onclick="addTimer()">
+    <i class="fa-regular fa-plus"></i> + ADD
+  </button>
 </div>
 
-<div class="box">
-<button onclick="saveAll()">💾 Save & Start</button>
-<button onclick="clearAll()">⛔ Clear All</button>
+<!-- ACTION BUTTONS -->
+<div class="action-tiny">
+  <button class="btn-tiny btn-save-tiny" onclick="saveTimers()">
+    <i class="fa-regular fa-floppy-disk"></i> SAVE
+  </button>
+  <button class="btn-tiny btn-clear-tiny" onclick="clearAll()">
+    <i class="fa-regular fa-trash-can"></i> CLEAR
+  </button>
+  <button class="btn-tiny btn-process-tiny" onclick="processHold()">
+    <i class="fa-regular fa-clock"></i> PROCESS HOLD (manual)
+  </button>
 </div>
 
-<div class="box">
-<h3>📜 Results History</h3>
-<div id="history"></div>
+<!-- DASHBOARD: TIMERS (left) + HISTORY (right) -->
+<div class="dashboard">
+  <!-- LEFT: TIMERS -->
+  <div class="left-panel">
+    <div class="panel-title">
+      <i class="fa-regular fa-bell"></i> TIMERS
+      <span style="margin-left: auto; font-size:0.7rem; color:#6485a3;" id="timerCount">0</span>
+    </div>
+    <div class="timers-compact" id="timers"></div>
+  </div>
+
+  <!-- RIGHT: HISTORY -->
+  <div class="right-panel">
+    <div class="panel-title">
+      <i class="fa-regular fa-newspaper"></i> HISTORY
+      <span style="margin-left: auto; font-size:0.7rem; color:#6485a3;" id="historyCount">0</span>
+    </div>
+    <div class="history-compact" id="history"></div>
+  </div>
 </div>
 
 </div>
 
 <script>
-let timers = JSON.parse(localStorage.getItem("timers")) || [];
-let historyData = JSON.parse(localStorage.getItem("history")) || [];
+// ===== DATA =====
+let T = JSON.parse(localStorage.getItem("T")) || [];
+let H = JSON.parse(localStorage.getItem("H")) || [];
+let Q = JSON.parse(localStorage.getItem("Q")) || [];
+let lastTrig = parseInt(localStorage.getItem("lastT")) || 0;
 
-const timersDiv = document.getElementById("timers");
-const historyDiv = document.getElementById("history");
+const td = document.getElementById("timers");
+const hd = document.getElementById("history");
+const holdDisplay = document.getElementById("holdCountDisplay");
 
-// ➕ Add Timer
-function addTimer(data = {}) {
-  const id = Date.now();
+// Set today's date
+document.getElementById("dateInput").value = new Date().toISOString().split('T')[0];
 
-  const div = document.createElement("div");
-  div.className = "timer-card";
-  div.dataset.id = id;
-
-  div.innerHTML = `
-    <input type="date" class="date" value="${data.date || ''}">
-    <input type="time" class="timeInput" value="${data.time || ''}">
-    <button class="delete-btn" onclick="removeTimer(${id})">❌ Remove</button>
-  `;
-
-  timersDiv.appendChild(div);
+// ===== HELPERS =====
+function updateCounts() {
+  document.getElementById("timerCount").innerText = T.length + Q.length;
+  document.getElementById("historyCount").innerText = H.length;
+  holdDisplay.innerText = `⏳ HOLD: ${Q.length}`;
 }
 
-// ❌ Remove Timer
-function removeTimer(id) {
-  document.querySelector(`[data-id='${id}']`).remove();
+function convert24(time, ampm) {
+  let [h, m] = time.split(':').map(Number);
+  if (ampm === 'PM' && h !== 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return `${h}:${m}`;
 }
 
-// 💾 Save Timers
-function saveAll() {
-  const cards = document.querySelectorAll(".timer-card");
+function isNear(t1, t2) {
+  return Math.abs(t1 - t2) <= 120000;
+}
 
-  timers = [];
+// ===== RENDER TIMERS =====
+function renderTimers() {
+  td.innerHTML = '';
+  
+  if (T.length === 0 && Q.length === 0) {
+    td.innerHTML = '<div class="empty-small">⏳ koi timer nahi</div>';
+    updateCounts();
+    return;
+  }
 
-  cards.forEach(card => {
-    const date = card.querySelector(".date").value;
-    const time = card.querySelector(".timeInput").value;
-
-    if (date && time) {
-      timers.push({ date, time });
-    }
+  // Normal timers
+  T.forEach(t => {
+    const dateObj = new Date(t.d);
+    const dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+    
+    td.innerHTML += `
+      <div class="timer-mini-card" data-id="${t.id}">
+        <div class="timer-badge"><i class="fa-regular fa-bell"></i> ${dateStr} · ${t.t} ${t.a}</div>
+        <div class="timer-prompt-mini" title="${t.p}">📝 ${t.p.substring(0,20)}${t.p.length>20?'…':''}</div>
+        <button class="delete-mini" onclick="deleteTimer(${t.id})"><i class="fa-regular fa-trash-can"></i></button>
+      </div>
+    `;
   });
 
-  localStorage.setItem("timers", JSON.stringify(timers));
-  alert("Saved!");
+  // Hold timers
+  Q.forEach(t => {
+    const dateObj = new Date(t.d);
+    const dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+    
+    td.innerHTML += `
+      <div class="timer-mini-card hold" data-id="${t.id}">
+        <div class="timer-badge hold"><i class="fa-regular fa-clock"></i> HOLD · ${dateStr} · ${t.t} ${t.a}</div>
+        <div class="timer-prompt-mini" title="${t.p}">📝 ${t.p.substring(0,20)}${t.p.length>20?'…':''}</div>
+        <span class="timer-hold-tag">⏱️ hold</span>
+        <button class="delete-mini" onclick="removeHold(${t.id})"><i class="fa-regular fa-trash-can"></i></button>
+      </div>
+    `;
+  });
+  
+  updateCounts();
 }
 
-// ⛔ Clear
-function clearAll() {
-  localStorage.clear();
-  location.reload();
+// ===== RENDER HISTORY =====
+function renderHistory() {
+  hd.innerHTML = '';
+  
+  if (H.length === 0) {
+    hd.innerHTML = '<div class="empty-small">📭 koi news nahi</div>';
+    updateCounts();
+    return;
+  }
+
+  H.slice(0, 15).forEach(h => {
+    hd.innerHTML += `
+      <div class="history-mini-card">
+        <div class="history-mini-header">
+          <span class="history-mini-time"><i class="fa-regular fa-clock"></i> ${h.ts || ''}</span>
+          <span class="history-mini-prompt">📋 ${h.p.substring(0,15)}${h.p.length>15?'…':''}</span>
+          ${h.fh ? '<span class="history-hold-badge">HOLD</span>' : ''}
+        </div>
+        <div class="history-mini-result">${h.r.substring(0,80)}${h.r.length>80?'…':''}</div>
+      </div>
+    `;
+  });
+  
+  updateCounts();
 }
 
-// 🔥 Fetch + Save Result
-async function fetchNews(triggerTime) {
-  const prompt = document.getElementById("prompt").value;
+// ===== ADD TIMER =====
+window.addTimer = () => {
+  const date = document.getElementById("dateInput").value;
+  const time = document.getElementById("timeInput").value;
+  const ampm = document.getElementById("ampmSelect").value;
+  const prompt = document.getElementById("prompt").value.trim() || "Give 5 SSC UPSC news";
 
+  if (!date || !time) {
+    alert("Date aur time select karo!");
+    return;
+  }
+
+  T.push({
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    d: date,
+    t: time,
+    a: ampm,
+    p: prompt
+  });
+
+  localStorage.setItem("T", JSON.stringify(T));
+  renderTimers();
+  document.getElementById("prompt").value = "";
+};
+
+// ===== DELETE =====
+window.deleteTimer = (id) => {
+  T = T.filter(t => t.id !== id);
+  localStorage.setItem("T", JSON.stringify(T));
+  renderTimers();
+};
+
+window.removeHold = (id) => {
+  Q = Q.filter(t => t.id !== id);
+  localStorage.setItem("Q", JSON.stringify(Q));
+  renderTimers();
+};
+
+// ===== SAVE & CLEAR =====
+window.saveTimers = () => {
+  localStorage.setItem("T", JSON.stringify(T));
+  alert("Timers saved!");
+};
+
+window.clearAll = () => {
+  if (confirm("Sab kuch delete karna hai?")) {
+    T = []; H = []; Q = [];
+    localStorage.clear();
+    renderTimers();
+    renderHistory();
+  }
+};
+
+// ===== API CALL =====
+async function fetchNews(timer, fromHold) {
   try {
     const res = await fetch("/news", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        prompt,
-        date: new Date().toISOString().split("T")[0]
+        prompt: timer.p,
+        date: new Date().toISOString().split('T')[0]
       })
     });
-
     const data = await res.json();
-
-    const entry = {
-      time: triggerTime,
-      result: data.result
-    };
-
-    historyData.unshift(entry);
-    localStorage.setItem("history", JSON.stringify(historyData));
-
+    const result = data.result || "No result from API";
+    
+    H.unshift({
+      ts: new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }),
+      p: timer.p,
+      r: result,
+      fh: fromHold
+    });
+    
+    if (H.length > 30) H.pop();
+    localStorage.setItem("H", JSON.stringify(H));
     renderHistory();
-
-  } catch {
-    console.log("Error");
+    
+    lastTrig = Date.now();
+    localStorage.setItem("lastT", lastTrig);
+    
+  } catch (e) {
+    console.log("API error, using fallback", e);
+    // Fallback for testing
+    H.unshift({
+      ts: new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }),
+      p: timer.p,
+      r: "📌 UPSC Prelims 2025: Expected cut-off\n📌 SSC CGL Tier 2 answer key out\n📌 OBC reservation new criteria",
+      fh: fromHold
+    });
+    localStorage.setItem("H", JSON.stringify(H));
+    renderHistory();
   }
 }
 
-// 📜 Render History
-function renderHistory() {
-  historyDiv.innerHTML = "";
+// ===== HOLD PROCESS =====
+window.processHold = () => {
+  if (!Q.length) return;
 
-  historyData.forEach(h => {
-    const div = document.createElement("div");
-    div.className = "result-box";
-
-    div.innerHTML = `
-      <div class="time">🕒 ${h.time}</div>
-      <div>${h.result}</div>
-    `;
-
-    historyDiv.appendChild(div);
+  // Check if any new timer is within 2 minutes
+  const now = new Date();
+  const upcoming = T.filter(t => {
+    const [h, m] = convert24(t.t, t.a).split(':').map(Number);
+    const tm = new Date(t.d);
+    tm.setHours(h, m, 0, 0);
+    return tm > now && isNear(tm, now);
   });
-}
 
-// ⏳ Timer Logic
+  if (upcoming.length) {
+    console.log("New timer near, hold paused");
+    return;
+  }
+
+  // Process one hold timer
+  fetchNews(Q[0], true);
+  Q = Q.slice(1);
+  localStorage.setItem("Q", JSON.stringify(Q));
+  renderTimers();
+
+  // Schedule next if any
+  if (Q.length) {
+    setTimeout(() => processHold(), 60000);
+  }
+};
+
+// ===== CHECK TIMERS =====
 function checkTimers() {
   setInterval(() => {
-    const now = new Date().getTime();
-    const last = parseInt(localStorage.getItem("lastTriggerTime") || 0);
+    const now = new Date();
+    const currDate = now.toISOString().split('T')[0];
+    const currHour = now.getHours();
+    const currMin = now.getMinutes();
 
-    timers.forEach(t => {
-      const target = new Date(t.date + "T" + t.time).getTime();
-
-      if (now >= target && now - last > 120000) {
-
-        const readableTime = new Date().toLocaleString();
-
-        fetchNews(readableTime);
-
-        localStorage.setItem("lastTriggerTime", now);
-
-        // remove triggered
-        timers = timers.filter(x => x !== t);
-        localStorage.setItem("timers", JSON.stringify(timers));
+    // Check normal timers
+    T.forEach(t => {
+      const [th, tm] = convert24(t.t, t.a).split(':').map(Number);
+      if (t.d === currDate && th === currHour && tm === currMin && Date.now() - lastTrig > 120000) {
+        fetchNews(t, false);
+        T = T.filter(x => x.id !== t.id);
+        localStorage.setItem("T", JSON.stringify(T));
+        renderTimers();
       }
     });
 
-  }, 1000);
+    // Check for missed timers
+    T.forEach(t => {
+      const [th, tm] = convert24(t.t, t.a).split(':').map(Number);
+      const timerTime = new Date(t.d);
+      timerTime.setHours(th, tm, 0, 0);
+      
+      if (timerTime < now && t.d <= currDate && !Q.find(x => x.id === t.id)) {
+        Q.push(t);
+        T = T.filter(x => x.id !== t.id);
+      }
+    });
+
+    if (Q.length) {
+      localStorage.setItem("Q", JSON.stringify(Q));
+      renderTimers();
+    }
+  }, 30000);
 }
 
-// 🔄 Load
-function loadTimers() {
-  timers.forEach(t => addTimer(t));
+// ===== INIT CHECK FOR MISSED =====
+function initMissedCheck() {
+  const now = new Date();
+  const currDate = now.toISOString().split('T')[0];
+  
+  const missed = T.filter(t => {
+    const [th, tm] = convert24(t.t, t.a).split(':').map(Number);
+    const timerTime = new Date(t.d);
+    timerTime.setHours(th, tm, 0, 0);
+    return timerTime < now && t.d <= currDate;
+  });
+
+  if (missed.length) {
+    Q = [...Q, ...missed];
+    T = T.filter(t => !missed.find(m => m.id === t.id));
+    localStorage.setItem("T", JSON.stringify(T));
+    localStorage.setItem("Q", JSON.stringify(Q));
+    renderTimers();
+    setTimeout(() => processHold(), 1000);
+  }
 }
 
-// INIT
-loadTimers();
+// ===== INIT =====
+renderTimers();
 renderHistory();
+initMissedCheck();
 checkTimers();
-
 </script>
-
 </body>
 </html>
